@@ -42,10 +42,14 @@ go_test(
 
 pkg_tar(
     name = "rpmtest-tar",
-    srcs = ["//:testdata/content1.txt"],
+    srcs = [
+        "//:testdata/content1.txt",
+        "//:testdata/symlink1",
+    ],
     mode = "0644",
     ownername = "root.root",
     package_dir = "var/lib/rpmpack",
+    # TODO: figure out why tar symlinks don't respect ownername
 )
 
 pkg_tar2rpm(
@@ -62,4 +66,13 @@ container_image(
     base = "@centos//image",
     directory = "/root/",
     files = [":rpmtest.rpm"],
+)
+
+sh_test(
+    name = "centos_test",
+    srcs = ["centos_test.sh"],
+    data = [
+        "testdata/golden_V.txt",
+        ":centos_with_rpm",
+    ],
 )
